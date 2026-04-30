@@ -122,60 +122,10 @@ null_indices = [k for k in range(len(I_all)) if abs(I_all[k]) > threshold]
 print("Null candidates:", len(null_indices))
 
 
-
-
 null_positions = []
 null_times = []
-'''
-for k in null_indices:
 
-    # positions
-    r1 = R_masked[0][k]
-    r2 = R_masked[1][k]
-    r3 = R_masked[2][k]
-    r4 = R_masked[3][k]
 
-    # magnetic field
-    b1 = B_masked[0][k]
-    b2 = B_masked[1][k]
-    b3 = B_masked[2][k]
-    b4 = B_masked[3][k]
-
-    # barycenter
-    r0 = np.mean([r1, r2, r3, r4], axis=0)
-    b0 = np.mean([b1, b2, b3, b4], axis=0)
-
-    # construct matrices
-    Rmat = np.vstack([r2 - r1, r3 - r1, r4 - r1]).T
-    Bmat = np.vstack([b2 - b1, b3 - b1, b4 - b1]).T
-
-    # compute Jacobian
-    J = Bmat @ np.linalg.pinv(Rmat)
-
-    # stability check
-    if np.linalg.cond(J) > 1e6:
-        continue
-
-    # compute null position
-    r_null = r0 - np.linalg.pinv(J) @ b0
-
-    # residual check
-    residual = np.linalg.norm(b0 + J @ (r_null - r0))
-
-    if residual > 1e-2:
-        continue
-
-    null_positions.append(r_null)
-    null_times.append(t_ref[k])
-    
-
-for i in range(len(null_positions)):
-    print("\n--- Magnetic Null Found ---")
-    print(f"Time: {null_times[i]:.3f} s")
-    print(f"GSE Coordinates (km): X={null_positions[i][0]:.2f}, Y={null_positions[i][1]:.2f}, Z={null_positions[i][2]:.2f}")
-    
-
-'''
 def is_inside_tetrahedron(p, r1, r2, r3, r4):
     """
     Checks if point p is inside the tetrahedron formed by r1, r2, r3, r4
@@ -194,13 +144,13 @@ def is_inside_tetrahedron(p, r1, r2, r3, r4):
     v4 = tet_volume(r1, r2, r3, p)
     
     # Sum of sub-volumes should equal total volume if inside
-    # We use a small epsilon for numerical stability
+    #  use a small epsilon for numerical stability
     #return np.isclose(v_total, v1 + v2 + v3 + v4, rtol=1e-3)
     return np.isclose(v_total, v1 + v2 + v3 + v4, rtol=0.2)
 final_nulls = []
 
 for k in null_indices:
-    # ... (your existing J and r_null calculation code) ..
+   
     # positions
     r1 = R_masked[0][k]
     r2 = R_masked[1][k]
@@ -242,7 +192,7 @@ for k in null_indices:
     
     
 
-    # NEW: Check if r_null is physically inside the spacecraft formation
+    # Check if r_null is physically inside the spacecraft formation
     if is_inside_tetrahedron(r_null, r1, r2, r3, r4):
         final_nulls.append({
             'time': t_ref[k],
@@ -258,7 +208,7 @@ if len(final_nulls) > 0:
     X_coords = np.array([n['pos'] for n in final_nulls])
     
     # eps is the max distance between two points to be in the same cluster
-    # 5-10km is reasonable given your 47km spacecraft separation
+    
     clustering = DBSCAN(eps=10, min_samples=2).fit(X_coords)
     labels = clustering.labels_
 
