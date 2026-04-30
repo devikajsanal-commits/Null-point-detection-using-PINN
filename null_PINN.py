@@ -129,7 +129,7 @@ if __name__ == "__main__":
     forward_batch = vmap(forward, in_axes=(None, 0))
 
     # =========================
-    # PHYSICS (jacfwd version)
+    # PHYSICS 
     # =========================
 
     def compute_physics(params, X):
